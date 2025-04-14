@@ -516,8 +516,12 @@ class TemplateContent {
 
 	async renderPermalink(permalink, data) {
 		let tr = await this.getTemplateRender();
-		let permalinkCompilation = tr.engines.some(e => e.permalinkNeedsCompilation(permalink));
-		await tr.init(tr.engineNames[0])
+		let permalinkCompilationIdx = tr.engines.findIndex(e => e.permalinkNeedsCompilation(permalink) !== false);
+		if (permalinkCompilationIdx !== -1) {
+					await tr.init(tr.engineNames[permalinkCompilationIdx])
+					permalinkCompilationIdx = 0;
+		}
+		let permalinkCompilation = tr.engines[permalinkCompilationIdx].permalinkNeedsCompilation(permalink);
 
 		// No string compilation:
 		//    ({ compileOptions: { permalink: "raw" }})
@@ -525,7 +529,7 @@ class TemplateContent {
 		//    ({ compileOptions: { permalink: false }})
 		//    ({ compileOptions: { permalink: () => false }})
 		//    ({ compileOptions: { permalink: () => (() = > false) }})
-		if (permalinkCompilation === undefined && typeof permalink !== "function") {
+		if (permalinkCompilation === false && typeof permalink !== "function") {
 			return permalink;
 		}
 
@@ -574,9 +578,9 @@ class TemplateContent {
 
 	async _render(str, data, options = {}) {
 		let { type } = options;
-
+		const tr = await this.getTemplateRender();
 		//try {
-			if (this.engines.every((engine) => !engine.needsCompilation(str))) {
+			if (tr.engines.every((engine) => !engine.needsCompilation(str))) {
 				return str;
 			}
 

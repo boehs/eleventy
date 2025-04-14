@@ -13,6 +13,10 @@ export default class Markdown extends TemplateEngine {
 		this.cacheable = true;
 	}
 
+	permalinkNeedsCompilation() {
+		return false
+	}
+
 	setLibrary(mdLib) {
 		this.mdLib = mdLib || markdownIt(this.getMarkdownOptions());
 

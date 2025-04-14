@@ -169,30 +169,50 @@ class EleventyExtensionMap {
 	}
 
 	hasExtension(key) {
-		for (let extension in this.extensionToKeyMap) {
+		for (let extension of Object.values(this.extensionToKeyMap)) {
 			if (
-				this.extensionToKeyMap[extension].key === key ||
-				this.extensionToKeyMap[extension].aliasKey === key ||
-				(Array.isArray(this.extensionToKeyMap[extension].key) && this.extensionToKeyMap[extension].key.slice(-1)[0] === key)
+				extension.key === key ||
+				extension.aliasKey === key
 			) {
 				return true;
+			}
+
+			if (Array.isArray(extension.key) && Array.isArray(key)) {
+				if (
+					extension.key.length === key.length &&
+					extension.key.every((k) => key.includes(k))
+				) {
+					return true;
+				}
 			}
 		}
 
 		return false;
 	}
 
+	/**
+	 * For a key, get extensions that should be searched for.
+	 * @example
+	 * getExtensionsFromKey("11ty.js") => ["11ty.js", "11ty.cjs", "11ty.mjs"]
+	 */
 	getExtensionsFromKey(key) {
 		let extensions = new Set();
 		for (let extension in this.extensionToKeyMap) {
-			if (this.extensionToKeyMap[extension].aliasKey) {
+			const entry = this.extensionToKeyMap[extension];
+			if (entry.aliasKey) {
 				// only add aliased extension if explicitly referenced in formats
 				// overrides will not have an aliasKey (md => md)
-				if (this.extensionToKeyMap[extension].aliasKey === key) {
+				if (entry.aliasKey === key) {
 					extensions.add(extension);
 				}
-			} else if (this.extensionToKeyMap[extension].key === key || this.extensionToKeyMap[extension].key.includes(key)) {
+			}
+			if (entry.key === key) {
 				extensions.add(extension);
+			}
+			if (Array.isArray(entry.key) && Array.isArray(key)) {
+				if (entry.key.length === key.length && entry.key.every((k) => key.includes(k))) {
+					extensions.add(extension);
+				}
 			}
 		}
 

@@ -10,6 +10,9 @@ import checkPassthroughCopyBehavior from "./Util/PassthroughCopyBehaviorCheck.js
 const debug = debugUtil("Eleventy:EleventyFiles");
 
 class EleventyFiles {
+	/**
+	 * @type {import("./EleventyExtensionMap.js").default}
+	 */
 	#extensionMap;
 
 	constructor(formats, templateConfig) {
