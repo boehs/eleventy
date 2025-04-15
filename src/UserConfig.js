@@ -283,10 +283,10 @@ class UserConfig {
 
 	getFilters(options = {}) {
 		let working = this.universal.filters;
-		if (options.type) {
+		if (options.async) {
 			working = objectFilter(
 				this.universal.filters,
-				(entry) => entry.__eleventyInternal?.type === options.type,
+				(entry) => entry.__eleventyInternal?.async === options.async,
 			);
 		}
 		if (options.lang) {
@@ -1253,11 +1253,13 @@ class UserConfig {
 					}),
 					filters: this.getFilters({
 						lang: "njk",
+						async: false,
 					}),
 				},
 				liquid: {
 					filters: this.getFilters({
 						lang: "liquid",
+						async: false,
 					}),
 				}
 			},
